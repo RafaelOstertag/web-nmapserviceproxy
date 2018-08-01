@@ -2,6 +2,7 @@ package ch.guengel.webtools
 
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.http.HttpServerRequest
+import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.LoggerHandler
@@ -52,4 +53,9 @@ fun RoutingContext.getClientIp(): String {
     val header = this.request().getHeader("x-forwarded-for")
     val ip = header?.split("\\s*,\\s*".toRegex())?.get(0)
     return ip ?: this.request().connection().remoteAddress().host()
+}
+
+fun HttpServerResponse.contentTypeJson(): HttpServerResponse {
+    this.putHeader("content-type", "application/json")
+    return this
 }
