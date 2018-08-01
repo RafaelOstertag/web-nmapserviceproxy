@@ -59,8 +59,6 @@ class LastSeenService(server: String, port: Int) : BaseService(server, port) {
             } catch (e: ClassCastException) {
                 numberOfOccurrences.fail(e)
             }
-        }.exceptionHandler {
-            numberOfOccurrences.fail(it)
         }
         return numberOfOccurrences
     }
