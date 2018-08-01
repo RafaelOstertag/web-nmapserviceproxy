@@ -2,6 +2,7 @@ package ch.guengel.webtools
 
 import ch.guengel.webtools.services.LastSeenService
 import ch.guengel.webtools.services.ScanService
+import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 import org.slf4j.LoggerFactory
@@ -30,7 +31,8 @@ fun main(args: Array<String>) {
                 if (!success) {
                     throw HttpException(400, "Too many scans")
                 }
-                scanService.scanHost(ipToScan)
+
+                scanService.scanHost(ipToScan, getPorts(routingContext))
             }.setHandler {
                 when {
                     it.failed() -> {
@@ -59,4 +61,9 @@ fun main(args: Array<String>) {
         start()
     }
 
+}
+
+private fun getPorts(routingContext: RoutingContext): String {
+    val portsParameter = routingContext.queryParam("ports")
+    return if (portsParameter.size != 0) portsParameter[0] else ""
 }
