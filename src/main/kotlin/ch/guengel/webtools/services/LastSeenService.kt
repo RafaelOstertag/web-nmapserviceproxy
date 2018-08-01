@@ -1,27 +1,10 @@
-package ch.guengel.webtools
+package ch.guengel.webtools.services
 
-import ch.guengel.webtools.Runtime.vertx
+import ch.guengel.webtools.UnexpectedJsonException
 import io.vertx.core.Future
-import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientResponse
-import io.vertx.core.json.JsonObject
-import io.vertx.kotlin.core.http.HttpClientOptions
-import org.slf4j.LoggerFactory
 
-class LastSeenService(server: String, port: Int) {
-    private val logger = LoggerFactory.getLogger("LastSeenService")
-    private val client: HttpClient
-
-    init {
-        logger.info("Initializing HTTP client")
-        val options = HttpClientOptions()
-            .setDefaultHost(server)
-            .setDefaultPort(port)
-            .setLogActivity(true)
-
-        client = vertx.createHttpClient(options)
-    }
-
+class LastSeenService(server: String, port: Int) : BaseService(server, port) {
 
     internal fun updateLastSeen(ip: String): Future<Void> {
         logger.info("Query time constraint for {}", ip)
@@ -37,21 +20,6 @@ class LastSeenService(server: String, port: Int) {
             }
         }.end()
         return submitted
-    }
-
-    private fun handleHttpError(
-        response: HttpClientResponse,
-        future: Future<out Any>
-    ) {
-        val statusCode = response.statusCode()
-        logger.error(
-            "Received {} while {} {}: {}",
-            statusCode,
-            response.request().method(),
-            response.request().absoluteURI(),
-            response.statusMessage()
-        )
-        future.fail(HttpClientException(statusCode, response.statusMessage()))
     }
 
     internal fun ipFulfilsConstraints(ip: String, timeConstraint: String, maxOccurrences: Int): Future<Boolean> {
@@ -78,7 +46,7 @@ class LastSeenService(server: String, port: Int) {
         val numberOfOccurrences: Future<Int> = Future.future()
         response.bodyHandler {
             try {
-                val bodyAsJson = JsonObject(it)
+                val bodyAsJson = it.toJsonObject()
                 val timesSeen = bodyAsJson.getInteger("timesSeen")
                 val ip = bodyAsJson.getString("ip")
                 when {
@@ -91,13 +59,15 @@ class LastSeenService(server: String, port: Int) {
             } catch (e: ClassCastException) {
                 numberOfOccurrences.fail(e)
             }
+        }.exceptionHandler {
+            numberOfOccurrences.fail(it)
         }
         return numberOfOccurrences
     }
 
     fun isIpWithinTimeConstraint(ip: String): Future<Boolean> {
         return updateLastSeen(ip).compose {
-            ipFulfilsConstraints(ip, "1m", 5)
+            ipFulfilsConstraints(ip, "1m", 3)
         }
     }
 }

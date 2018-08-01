@@ -1,4 +1,4 @@
-package ch.guengel.webtools
+package ch.guengel.webtools.services
 
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpMethod
@@ -13,9 +13,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-data class Occurrences(val ip: String, val from: String, val to: String, val timesSeen: Int)
-
-val port = 50001
+const val port = 50001
 
 @RunWith(VertxUnitRunner::class)
 class LastSeenServiceTest {
@@ -57,7 +55,7 @@ class LastSeenServiceTest {
                 } else {
                     it.response()
                         .putHeader("content-type", "application/json")
-                        .end(makeOccurrences(4))
+                        .end(makeOccurrences(2))
                 }
 
             }
