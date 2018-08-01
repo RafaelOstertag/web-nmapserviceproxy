@@ -1,6 +1,6 @@
 package ch.guengel.webtools.services
 
-import ch.guengel.webtools.HttpClientException
+import ch.guengel.webtools.HttpException
 import ch.guengel.webtools.Runtime.vertx
 import io.vertx.core.Future
 import io.vertx.core.http.HttpClient
@@ -34,7 +34,7 @@ open class BaseService(server: String, port: Int) {
             response.request().absoluteURI(),
             response.statusMessage()
         )
-        future.fail(HttpClientException(statusCode, response.statusMessage()))
+        future.fail(HttpException(statusCode, response.statusMessage()))
     }
 
 }
