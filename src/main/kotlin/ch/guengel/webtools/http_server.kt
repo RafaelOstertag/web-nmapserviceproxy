@@ -56,6 +56,6 @@ fun RoutingContext.getClientIp(): String {
 }
 
 fun HttpServerResponse.contentTypeJson(): HttpServerResponse {
-    this.putHeader("content-type", "application/json")
+    this.putHeader("Content-Type", "application/json")
     return this
 }
