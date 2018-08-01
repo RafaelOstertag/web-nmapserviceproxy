@@ -1,12 +1,12 @@
 <configuration>
 
     <appender name="ROTATOR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR:-/opt/lastseenservice/log}/lastseenservice.log</file>
+        <file>${LOG_DIR:-/opt/nmapserviceproxy/log}/nmapserviceproxy.log</file>
         <encoder>
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>lastseenservice.%d{YYYY-MM-dd}</fileNamePattern>
+            <fileNamePattern>nmapserviceproxy.%d{YYYY-MM-dd}</fileNamePattern>
         </rollingPolicy>
         <maxHistory>30</maxHistory>
         <totalSizeCap>150MB</totalSizeCap>
