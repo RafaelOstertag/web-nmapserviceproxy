@@ -48,7 +48,7 @@ object HttpServer {
         server.listen(port)
     }
 }
- 
+
 fun RoutingContext.getClientIp(): String {
     val header = this.request().getHeader("x-forwarded-for")
     val ip = header?.split("\\s*,\\s*".toRegex())?.get(0)

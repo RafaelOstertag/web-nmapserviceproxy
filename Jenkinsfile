@@ -47,14 +47,14 @@ pipeline {
                 }
                 script {
                     def version = env.BRANCH_NAME - 'release/v'
-                    step([$class: "RundeckNotifier",
-                          includeRundeckLogs: true,
-                          jobId: "21c1a435-3931-4cf8-7ec-1d61609be089",
-                          options: "version=$version",
-                          rundeckInstance: "gizmo",
-                          shouldFailTheBuild: true,
+                    step([$class                 : "RundeckNotifier",
+                          includeRundeckLogs     : true,
+                          jobId                  : "21c1a435-3931-4cf8-7ec-1d61609be089",
+                          options                : "version=$version",
+                          rundeckInstance        : "gizmo",
+                          shouldFailTheBuild     : true,
                           shouldWaitForRundeckJob: true,
-                          tailLog: true])
+                          tailLog                : true])
                 }
             }
         }
