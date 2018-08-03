@@ -21,6 +21,10 @@ private fun errorResponse(message: String?): String {
     }.encode()
 }
 
+private fun getHttpPort(): Int {
+    return System.getenv("HTTP_PORT")?.toInt() ?: 8080
+}
+
 fun main(args: Array<String>) {
     printGitVersion()
     with(HttpServer) {
@@ -84,7 +88,7 @@ fun main(args: Array<String>) {
                     }
                 }
         }
-        start()
+        start(getHttpPort())
     }
 
 }

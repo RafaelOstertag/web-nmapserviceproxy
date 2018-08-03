@@ -8,3 +8,9 @@ To make Vert.x use SLF4J, set following system property
 To specify the logback configuration, use this property
 
     logback.configurationFile=<classpath|filepath>
+    
+    
+Environment variables
+===
+
+* `HTTP_PORT`: Port to listen on
