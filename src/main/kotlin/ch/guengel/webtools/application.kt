@@ -24,9 +24,19 @@ private fun errorResponse(message: String?): String {
 fun main(args: Array<String>) {
     printGitVersion()
     with(HttpServer) {
-        addRoute("/v1/scan/:ip") { routingContext ->
+        addRoute("/v1/scan/:scanTarget") { routingContext ->
             val ipRequestingScan = routingContext.getClientIp()
-            val ipToScan = routingContext.pathParam("ip")
+            val scanTarget = routingContext.pathParam("scanTarget")
+
+            if (isScanTargetBlacklisted(scanTarget)) {
+                logger.error("Scan target $scanTarget is black listed")
+                routingContext
+                    .response()
+                    .contentTypeJson()
+                    .setStatusCode(403)
+                    .end(errorResponse("Host must not be scanned"))
+                return@addRoute
+            }
 
             logger.info("Inquiry number of occurrences for {}", ipRequestingScan)
 
@@ -48,7 +58,7 @@ fun main(args: Array<String>) {
                     result.complete(ScanService(it.host, it.port))
                     result
                 }.compose {
-                    it.scanHost(ipToScan, getPorts(routingContext))
+                    it.scanHost(scanTarget, getPorts(routingContext))
                 }.setHandler {
                     when {
                         it.failed() -> {

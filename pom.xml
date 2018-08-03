@@ -124,7 +124,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        ch.guengel.webtools.MainKt
+                                        ch.guengel.webtools.ApplicationKt
                                     </mainClass>
                                 </manifest>
                             </archive>

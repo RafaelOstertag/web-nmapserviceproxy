@@ -13,7 +13,7 @@ class ScanServiceTest {
         val async = testContext.async()
 
         val scanService = ScanService(server = "gizmo.kruemel.home", port = 40000)
-        scanService.scanHost("gizmo.kruemel.home").setHandler {
+        scanService.scanHost("jetfire.kruemel.home").setHandler {
             when {
                 it.failed() -> testContext.fail("Test failed with " + it.cause())
                 else -> {
@@ -31,7 +31,7 @@ class ScanServiceTest {
         val async = testContext.async()
 
         val scanService = ScanService(server = "gizmo.kruemel.home", port = 40000)
-        scanService.scanHost("gizmo.kruemel.home", "22").setHandler {
+        scanService.scanHost("jetfire.kruemel.home", "22").setHandler {
             when {
                 it.failed() -> testContext.fail("Test failed with " + it.cause())
                 else -> {
@@ -49,7 +49,7 @@ class ScanServiceTest {
         val async = testContext.async()
 
         val scanService = ScanService(server = "gizmo.kruemel.home", port = 40000)
-        scanService.scanHost("not-exist.kruemel.home").setHandler {
+        scanService.scanHost("not-exist.does.not.exist").setHandler {
             testContext.assertFalse(it.failed())
             testContext.assertTrue(it.succeeded())
             async.complete()
@@ -62,7 +62,7 @@ class ScanServiceTest {
         val async = testContext.async()
 
         val scanService = ScanService(server = "gizmo.kruemel.home", port = 40000)
-        scanService.scanHost("gizmo.kruemel.home", "12--12").setHandler {
+        scanService.scanHost("jetfire.kruemel.home", "12--12").setHandler {
             testContext.assertTrue(it.failed())
             testContext.assertFalse(it.succeeded())
             async.complete()
