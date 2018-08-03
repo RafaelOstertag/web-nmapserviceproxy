@@ -49,7 +49,7 @@ pipeline {
                     def version = env.BRANCH_NAME - 'release/v'
                     step([$class                 : "RundeckNotifier",
                           includeRundeckLogs     : true,
-                          jobId                  : "21c1a435-3931-4cf8-7ec-1d61609be089",
+                          jobId                  : "4440b25d-4e87-43e2-99e3-7b0775b6b4e7",
                           options                : "version=$version",
                           rundeckInstance        : "gizmo",
                           shouldFailTheBuild     : true,
