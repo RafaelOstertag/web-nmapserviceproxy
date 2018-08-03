@@ -22,6 +22,7 @@ private fun errorResponse(message: String?): String {
 }
 
 fun main(args: Array<String>) {
+    printGitVersion()
     with(HttpServer) {
         addRoute("/v1/scan/:ip") { routingContext ->
             val ipRequestingScan = routingContext.getClientIp()
