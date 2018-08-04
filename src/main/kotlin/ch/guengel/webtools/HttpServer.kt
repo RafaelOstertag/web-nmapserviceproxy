@@ -55,6 +55,7 @@ object HttpServer {
             }
             else -> {
                 status = routingContext.statusCode()
+                status = if (status < 100) 400 else status
                 phrase = HttpResponseStatus.valueOf(status).reasonPhrase()
             }
         }
