@@ -1,10 +1,12 @@
 package ch.guengel.webtools
 
+import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
+import io.vertx.ext.web.handler.CorsHandler
 import io.vertx.ext.web.handler.LoggerHandler
 import org.slf4j.LoggerFactory
 
@@ -21,6 +23,14 @@ object HttpServer {
         Router.router(Runtime.vertx)
     }
 
+    private val corsHandler by lazy {
+        logger.info("Initializing CORS handler")
+        CorsHandler.create("*")
+            .allowedMethod(HttpMethod.GET)
+            .allowedMethod(HttpMethod.OPTIONS)
+            .allowedHeader("Access-Control-Allow-Origin")
+    }
+
     init {
         val logHandler = LoggerHandler.create()
         router
@@ -28,6 +38,8 @@ object HttpServer {
             .handler {
                 logHandler.handle(it)
             }
+
+        router.route().handler(corsHandler)
 
         server.requestHandler { router.accept(it) }
     }
