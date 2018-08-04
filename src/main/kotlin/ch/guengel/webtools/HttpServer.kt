@@ -1,8 +1,8 @@
 package ch.guengel.webtools
 
+import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerOptions
-import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
@@ -32,32 +32,59 @@ object HttpServer {
     }
 
     init {
-        val logHandler = LoggerHandler.create()
         router
             .route()
-            .handler {
-                logHandler.handle(it)
-            }
-
-        router.route().handler(corsHandler)
-
-        server.requestHandler { router.accept(it) }
+            .handler(LoggerHandler.create()::handle)
+            .handler(corsHandler)
+            .failureHandler(this::defaultFailureHandler)
     }
 
-    private fun addHandler(handler: (HttpServerRequest) -> Unit) {
-        server.requestHandler(handler)
+    fun defaultFailureHandler(routingContext: RoutingContext) {
+        var status: Int
+        var phrase: String
+
+        val contextFailure = routingContext.failure()
+        when {
+            contextFailure is HttpException -> {
+                status = contextFailure.statusCode
+                phrase = contextFailure.message ?: "unknown"
+            }
+            contextFailure is RuntimeException -> {
+                status = 500
+                phrase = contextFailure.message ?: "unkown"
+            }
+            else -> {
+                status = routingContext.statusCode()
+                phrase = HttpResponseStatus.valueOf(status).reasonPhrase()
+            }
+        }
+
+        routingContext.response()
+            .contentTypeJson()
+            .setStatusCode(status)
+            .end(errorResponse(phrase))
     }
 
     fun addRoute(path: String, handler: (RoutingContext) -> Unit) {
         logger.info("Add route for '{}'", path)
-        router.route(path).handler(handler)
-
-        addHandler { router.accept(it) }
+        router
+            .route(path)
+            .handler(handler)
     }
 
     fun start(port: Int = 8080) {
         logger.info("Starting server on port {}", port)
-        server.listen(port)
+
+        // This will be called if no other route handles the request
+        router.route()
+            .handler {
+                it.fail(404)
+            }
+            .failureHandler(::defaultFailureHandler)
+
+        server
+            .requestHandler(router::accept)
+            .listen(port)
     }
 }
 

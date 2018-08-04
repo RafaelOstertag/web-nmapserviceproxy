@@ -6,20 +6,10 @@ import ch.guengel.webtools.services.LastSeenService
 import ch.guengel.webtools.services.ScanService
 import io.vertx.core.Future
 import io.vertx.ext.web.RoutingContext
-import io.vertx.kotlin.core.json.json
-import io.vertx.kotlin.core.json.obj
 import org.slf4j.LoggerFactory
 
 private val serviceDiscovery: ServiceDiscovery = Consul("gizmo.kruemel.home", 8500)
 private val logger = LoggerFactory.getLogger("application")
-
-private fun errorResponse(message: String?): String {
-    return json {
-        obj(
-            "reason" to (message ?: "reason unknown")
-        )
-    }.encode()
-}
 
 private fun getHttpPort(): Int {
     return System.getenv("HTTP_PORT")?.toInt() ?: 8080
@@ -34,11 +24,7 @@ fun main(args: Array<String>) {
 
             if (isScanTargetBlacklisted(scanTarget)) {
                 logger.error("Scan target $scanTarget is black listed")
-                routingContext
-                    .response()
-                    .contentTypeJson()
-                    .setStatusCode(403)
-                    .end(errorResponse("Host must not be scanned"))
+                routingContext.fail(HttpException(403, "Host must not be scanned"))
                 return@addRoute
             }
 
@@ -65,25 +51,11 @@ fun main(args: Array<String>) {
                     it.scanHost(scanTarget, getPorts(routingContext))
                 }.setHandler {
                     when {
-                        it.failed() -> {
-                            routingContext
-                            .response()
-                                .contentTypeJson()
-
-                            val exception = it.cause()
-                            if (exception is HttpException) {
-                                routingContext
-                                    .response()
-                                    .setStatusCode(exception.statusCode)
-                            } else {
-                                routingContext.response().setStatusCode(500)
-                            }
-                                .end(errorResponse(it.cause().message))
-                        }
+                        it.failed() -> routingContext.fail(it.cause())
                         else -> routingContext
                             .response()
                             .contentTypeJson()
-                        .setStatusCode(200)
+                            .setStatusCode(200)
                             .end(it.result())
                     }
                 }

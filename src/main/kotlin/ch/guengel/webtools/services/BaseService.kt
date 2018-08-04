@@ -34,7 +34,16 @@ open class BaseService(server: String, port: Int) {
             response.request().absoluteURI(),
             response.statusMessage()
         )
-        future.fail(HttpException(statusCode, response.statusMessage()))
+
+        if (response.getHeader("content-type").toLowerCase().contains("application/json")) {
+            response.bodyHandler {
+                val jsonObject = it.toJsonObject()
+                val reason = jsonObject.getString("reason") ?: jsonObject.getString("message") ?: "unknown"
+                future.fail(HttpException(statusCode, reason))
+            }
+        } else {
+            future.fail(HttpException(statusCode, response.statusMessage()))
+        }
     }
 
 }
