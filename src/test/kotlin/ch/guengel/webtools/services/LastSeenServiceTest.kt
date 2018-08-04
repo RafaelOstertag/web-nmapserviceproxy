@@ -33,6 +33,14 @@ class LastSeenServiceTest {
             }.encode()
         }
 
+        fun makeError(): String? {
+            return json {
+                obj(
+                    "reason" to "some error reason"
+                )
+            }.encode()
+        }
+
         fun router(): Router {
             val router = Router.router(vertx)
 
@@ -42,19 +50,19 @@ class LastSeenServiceTest {
                 response.end()
             }
             router.route(HttpMethod.PUT, "/v1/lastseen/127.0.0.2").handler {
-                it.response().setStatusCode(400).end()
+                it.response().putHeader("content-type", "application/json").setStatusCode(400).end(makeError())
             }
             router.route(HttpMethod.PUT, "/v1/lastseen/127.0.0.3").handler {
-                it.response().setStatusCode(404).end()
+                it.response().putHeader("content-type", "application/json").setStatusCode(404).end(makeError())
             }
             // When `?since=...` is present, return four occurrences. If absent return status code 400.
             router.route(HttpMethod.GET, "/v1/lastseen/127.0.0.1").handler {
                 val queryParam = it.queryParam("since")
+                it.response().putHeader("content-type", "application/json")
                 if (queryParam.size == 0) {
-                    it.response().setStatusCode(400).end()
+                    it.response().setStatusCode(400).end(makeError())
                 } else {
                     it.response()
-                        .putHeader("content-type", "application/json")
                         .end(makeOccurrences(2))
                 }
 
