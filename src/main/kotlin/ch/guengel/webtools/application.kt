@@ -39,7 +39,7 @@ fun main(args: Array<String>) {
                 }.compose {
                     it.isIpWithinTimeConstraint(ipRequestingScan).compose { success ->
                         if (!success) {
-                            throw HttpException(400, "Too many scans")
+                            throw HttpException(400, "Too many scans. Try again later.")
                         }
                         serviceDiscovery.getService("nmap")
                     }
