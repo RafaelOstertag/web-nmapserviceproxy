@@ -6,7 +6,7 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>nmapserviceproxy.%d{YYYY-MM-dd}</fileNamePattern>
+            <fileNamePattern>${LOG_DIR:-/opt/nmapserviceproxy/log}/nmapserviceproxy.%d{YYYY-MM-dd}</fileNamePattern>
         </rollingPolicy>
         <maxHistory>30</maxHistory>
         <totalSizeCap>150MB</totalSizeCap>
