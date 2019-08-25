@@ -4,8 +4,11 @@ import io.vertx.ext.unit.TestContext
 import io.vertx.ext.unit.junit.VertxUnitRunner
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.Ignore
 
 @RunWith(VertxUnitRunner::class)
+// TODO: Mock the scan service
+@Ignore
 class ScanServiceTest {
 
     @Test
