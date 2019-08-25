@@ -8,7 +8,8 @@ import io.vertx.core.Future
 import io.vertx.ext.web.RoutingContext
 import org.slf4j.LoggerFactory
 
-private val serviceDiscovery: ServiceDiscovery = Consul("gizmo.kruemel.home", 8500)
+// TODO: Make it configurable
+private val serviceDiscovery: ServiceDiscovery = Consul("localhost", 8500)
 private val logger = LoggerFactory.getLogger("application")
 
 private fun getHttpPort(): Int {
