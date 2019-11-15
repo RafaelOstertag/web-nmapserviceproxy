@@ -14,7 +14,7 @@ class Consul(private val consulHost: String, private val consulPort: Int) : Serv
 
     private val maxCacheEntryAge = 5 * 60 * 1_000L
 
-    val logger = LoggerFactory.getLogger("Service Discover")
+    val logger = LoggerFactory.getLogger("Service Discovery")
     val consulClient: ConsulClient
     private val serviceCache = ConcurrentHashMap<String, CacheEntity<Service>>()
 
