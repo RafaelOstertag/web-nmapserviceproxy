@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+/.idea
+/.vertx
+/target
+*.log
+Jenkinsfile
+README.md

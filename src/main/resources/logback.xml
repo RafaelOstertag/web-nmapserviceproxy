@@ -10,4 +10,5 @@
     </root>
 
     <logger name="root" level="INFO"/>
+    <logger name="ch.guengel" level="DEBUG"/>
 </configuration>

@@ -1,8 +1,8 @@
 package ch.guengel.webtools.servicediscovery
 
-import io.vertx.core.Future
 
 interface ServiceDiscovery {
-    fun getService(name: String): Future<Service>
+    fun getService(name: String): Service
 }
 
+data class Service(val host: String, val port: Int)
