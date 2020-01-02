@@ -28,4 +28,10 @@ class HostBlackListKtTest {
         assertTrue(isScanTargetBlacklisted("10.0.0.0"))
         assertTrue(isScanTargetBlacklisted("10.123.234.2"))
     }
+
+    @Test
+    fun `is 127 blacklisted`() {
+        assertTrue(isScanTargetBlacklisted("127.0.0.1"))
+        assertTrue(isScanTargetBlacklisted("127.255.255.255"))
+    }
 }
