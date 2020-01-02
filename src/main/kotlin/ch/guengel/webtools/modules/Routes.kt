@@ -39,7 +39,7 @@ private fun Route.scanRoute(log: Logger) = createRouteFromPath("scan/{scanTarget
 private fun PipelineContext<Unit, ApplicationCall>.scan(nmapService: NmapService): NmapDto {
     val scanTarget = call.parameters["scanTarget"] ?: throw IllegalArgumentException("Missing scan target")
     val ports = call.request.queryParameters["ports"]
-    val requestingHost = call.request.origin.host
+    val requestingHost = call.request.origin.remoteHost
     val scanResult = nmapService.scan(requestingHost, scanTarget, ports)
     return scanResult
 }
