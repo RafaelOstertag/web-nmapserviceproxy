@@ -52,7 +52,10 @@ private fun createNmapService(log: Logger, config: ApplicationConfig): NmapServi
     val maxOccurences = config.property("constraints.maxOccurences").getString().toInt()
     log.info("Requests per caller $maxOccurences/$timeConstraint")
 
-    return NmapService(Consul(consulHost), timeConstraint, maxOccurences)
+    val useIpBlacklist = config.property("constraints.useIPBlacklist").getString().toBoolean()
+    log.info("Use IP Blacklist: ${useIpBlacklist}")
+
+    return NmapService(Consul(consulHost), timeConstraint, maxOccurences, useIpBlacklist)
 }
 
 private fun Route.infoRoute() = createRouteFromPath("/info").apply {

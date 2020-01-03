@@ -36,6 +36,13 @@ internal class NmapServiceIT {
     }
 
     @Test
+    fun `disable IP blacklist`() {
+        val nmapService = NmapService(serviceDiscovery, "2s", 3, false)
+        val result = nmapService.scan("1.1.1.3", "www.guengel.ch", "80,443")
+        assertEquals(2, result.ports.size)
+    }
+
+    @Test
     fun `exceed scan limit`() {
         val nmapService = NmapService(serviceDiscovery, "2s", 0)
         assertThrows(TooManyScansException::class.java) {

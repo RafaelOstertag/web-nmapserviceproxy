@@ -9,9 +9,10 @@ import org.slf4j.LoggerFactory
 
 class NmapService(private val serviceDiscovery: ServiceDiscovery,
                   private val timeConstraint: String,
-                  private val maxOccurrences: Int) {
+                  private val maxOccurrences: Int,
+                  private val useIpBlacklist: Boolean = true) {
     fun scan(requestingIp: String, host: String, portSpec: String? = null): NmapDto {
-        if (isScanTargetBlacklisted(host)) {
+        if (useIpBlacklist && isScanTargetBlacklisted(host)) {
             logger.error("Scan target '$host' is blacklisted")
             throw HostBlacklistedException("Not allowed")
         }
