@@ -4,20 +4,18 @@ import ch.guengel.nmapservice.NmapGrpc
 import ch.guengel.nmapservice.NmapOuterClass
 import ch.guengel.webtools.dto.NmapDto
 import ch.guengel.webtools.dto.NmapPort
+import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class NmapGrpcService(private val host: String, private val port: Int) {
-    private fun createBlockingStub(): NmapGrpc.NmapBlockingStub {
-        val channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
-        return NmapGrpc.newBlockingStub(channel)
-    }
+class NmapGrpcService(host: String, port: Int) {
+    private val channel: ManagedChannel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
+    private val blockingStub: NmapGrpc.NmapBlockingStub = NmapGrpc.newBlockingStub(channel)
 
     fun scan(host: String, portSpec: String? = null): NmapDto {
-        val blockingStub = createBlockingStub()
         val nmapScanRequest = NmapOuterClass.ScanRequest.newBuilder().run {
             this.host = host
             if (portSpec != null) this.portSpec = portSpec

@@ -10,14 +10,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.OffsetDateTime
 
-class LastSeenGrpcService(private val host: String, private val port: Int) {
-    private fun createBlockingStub(): LastSeenGrpc.LastSeenBlockingStub {
-        val channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
-        return LastSeenGrpc.newBlockingStub(channel)
-    }
+class LastSeenGrpcService(host: String, port: Int) {
+    private val channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
+    private val blockingStub = LastSeenGrpc.newBlockingStub(channel)
 
     fun getLastSeen(ip: String, since: String? = null): LastSeenDto {
-        val blockingStub = createBlockingStub()
         val lastSeenRequest = Lastseen.LastSeenRequest.newBuilder().run {
             this.ip = ip
             if (since != null) this.since = since
@@ -38,7 +35,6 @@ class LastSeenGrpcService(private val host: String, private val port: Int) {
     }
 
     fun updateLastSeen(ip: String): LastSeenDto {
-        val blockingStub = createBlockingStub()
         val updateLastSeenRequest = Lastseen.UpdateLastSeenRequest.newBuilder().run {
             setIp(ip)
             build()
