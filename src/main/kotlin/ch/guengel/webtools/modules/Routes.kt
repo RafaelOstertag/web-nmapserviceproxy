@@ -18,18 +18,21 @@ import org.slf4j.Logger
 
 fun Application.routes() {
     log.info("Setting up routes")
+
+    val config = environment.config
+    val nmapService = createNmapService(log, config)
+
     routing {
         infoRoute()
         route("v1") {
-            scanRoute(log)
+            scanRoute(log, nmapService)
         }
     }
     log.info("Routes set up")
 }
 
-private fun Route.scanRoute(log: Logger) = createRouteFromPath("scan/{scanTarget}").apply {
-    val config = application.environment.config
-    val nmapService = createNmapService(log, config)
+private fun Route.scanRoute(log: Logger, nmapService: NmapService) = createRouteFromPath("scan/{scanTarget}").apply {
+
     get {
         val scanResult = scan(nmapService)
         call.respond(HttpStatusCode.OK, scanResult)
