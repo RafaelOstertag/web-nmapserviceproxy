@@ -4,6 +4,9 @@ import ch.guengel.webtools.dto.NmapDto
 import ch.guengel.webtools.isScanTargetBlacklisted
 import ch.guengel.webtools.servicediscovery.Service
 import ch.guengel.webtools.servicediscovery.ServiceDiscovery
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -11,18 +14,21 @@ class NmapService(private val serviceDiscovery: ServiceDiscovery,
                   private val timeConstraint: String,
                   private val maxOccurrences: Int,
                   private val useIpBlacklist: Boolean = true) {
+    private val resolveDispatcher = newSingleThreadContext("service-discovery")
+    private val lastSeenService = getLastSeenService()
+    private val nmapService = getNmapService()
+
     fun scan(requestingIp: String, host: String, portSpec: String? = null): NmapDto {
         if (useIpBlacklist && isScanTargetBlacklisted(host)) {
             logger.error("Scan target '$host' is blacklisted")
             throw HostBlacklistedException("Not allowed")
         }
-        val lastSeenService = getLastSeenService()
+
         if (!isIpWithinTimeConstraint(requestingIp, lastSeenService)) {
             logger.error("IP '$requestingIp' made to many scans")
             throw TooManyScansException("Too many scans. Try again later.")
         }
 
-        val nmapService = getNmapService()
         try {
             return nmapService.scan(host, portSpec)
         } catch (e: IllegalArgumentException) {
@@ -32,8 +38,10 @@ class NmapService(private val serviceDiscovery: ServiceDiscovery,
         }
     }
 
-    private fun getLastSeenService(): LastSeenGrpcService = resolveService("lastseen").let {
-        LastSeenGrpcService(it.host, it.port)
+    private fun getLastSeenService(): LastSeenGrpcService = runBlocking(resolveDispatcher) {
+        resolveService("lastseen").let {
+            LastSeenGrpcService(it.host, it.port)
+        }
     }
 
     private fun isIpWithinTimeConstraint(ip: String, lastSeenService: LastSeenGrpcService): Boolean {
@@ -41,18 +49,28 @@ class NmapService(private val serviceDiscovery: ServiceDiscovery,
         return lastSeenService.getLastSeen(ip, timeConstraint).timesSeen <= maxOccurrences
     }
 
-    private fun getNmapService(): NmapGrpcService = resolveService("nmap").let {
-        NmapGrpcService(it.host, it.port)
+    private fun getNmapService(): NmapGrpcService = runBlocking(resolveDispatcher) {
+        resolveService("nmap").let {
+            NmapGrpcService(it.host, it.port)
+        }
     }
 
-    private fun resolveService(name: String): Service {
-        try {
-            logger.info("Discover service $name")
-            return serviceDiscovery.getService(name)
-        } catch (e: Exception) {
-            val errorMessage = "Error discovering '$name'"
-            logger.error(errorMessage, e)
-            throw NmapServiceException(errorMessage, e)
+    private suspend fun resolveService(name: String): Service {
+        var retries = 0
+        var sleep = 1000L
+
+        while (true) {
+            try {
+                logger.info("Trying to discover service $name")
+                val service = serviceDiscovery.getService(name)
+                logger.info("Successfully resolved service $name")
+                return service
+            } catch (e: Exception) {
+                retries++
+                logger.warn("Could not resolve $name. Reason ${e.message}. Retry $retries in ${sleep}ms")
+                delay(sleep)
+                sleep *= 2
+            }
         }
     }
 
