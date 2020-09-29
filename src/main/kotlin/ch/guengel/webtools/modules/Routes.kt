@@ -1,7 +1,8 @@
 package ch.guengel.webtools.modules
 
 import ch.guengel.webtools.dto.NmapDto
-import ch.guengel.webtools.servicediscovery.Consul
+import ch.guengel.webtools.services.LastSeenGrpcService
+import ch.guengel.webtools.services.NmapGrpcService
 import ch.guengel.webtools.services.NmapService
 import ch.guengel.webtools.utils.readBuildInfo
 import io.ktor.application.Application
@@ -48,8 +49,11 @@ private fun PipelineContext<Unit, ApplicationCall>.scan(nmapService: NmapService
 }
 
 private fun createNmapService(log: Logger, config: ApplicationConfig): NmapService {
-    val consulHost = config.property("consul.host").getString()
-    log.info("Use consul host '$consulHost'")
+    val lastSeenServiceHost = config.property("services.lastseenservice.host").getString()
+    log.info("Use last seen service host '$lastSeenServiceHost'")
+
+    val nmapServiceHost = config.property("services.nmapservice.host").getString()
+    log.info("Use nmap service host '$nmapServiceHost'")
 
     val timeConstraint = config.property("constraints.timeConstraint").getString()
     val maxOccurences = config.property("constraints.maxOccurences").getString().toInt()
@@ -58,7 +62,24 @@ private fun createNmapService(log: Logger, config: ApplicationConfig): NmapServi
     val useIpBlacklist = config.property("constraints.useIPBlacklist").getString().toBoolean()
     log.info("Use IP Blacklist: ${useIpBlacklist}")
 
-    return NmapService(Consul(consulHost), timeConstraint, maxOccurences, useIpBlacklist)
+    val lastSeenServiceHostAndPort = lastSeenServiceHost.toHostAndPort()
+    val nmapServiceHostAndPort = nmapServiceHost.toHostAndPort();
+    return NmapService(
+            LastSeenGrpcService(lastSeenServiceHostAndPort.host,lastSeenServiceHostAndPort.port),
+            NmapGrpcService(nmapServiceHostAndPort.host,nmapServiceHostAndPort.port),
+            timeConstraint, maxOccurences, useIpBlacklist)
+}
+
+private fun String.toHostAndPort() : HostAndPort {
+    val hostAndPortComponents = this.split(":")
+    if (hostAndPortComponents.isEmpty()) {
+        throw IllegalArgumentException("'$this' is not a valid host")
+    }
+
+    if (hostAndPortComponents.size < 2) {
+        return HostAndPort(hostAndPortComponents[0], 8080)
+    }
+    return HostAndPort(hostAndPortComponents[0], hostAndPortComponents[1].toInt())
 }
 
 private fun Route.infoRoute() = createRouteFromPath("/info").apply {
@@ -67,3 +88,5 @@ private fun Route.infoRoute() = createRouteFromPath("/info").apply {
         call.respond(buildInfo)
     }
 }
+
+private data class HostAndPort(val host: String, val port: Int)

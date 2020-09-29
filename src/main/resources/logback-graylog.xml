@@ -1,0 +1,18 @@
+<configuration>
+
+    <appender name="GRAYLOG" class="biz.paluch.logging.gelf.logback.GelfLogbackAppender">
+        <host>udp:192.168.100.3</host>
+        <port>12201</port>
+        <version>1.1</version>
+        <facility>lastseen-service</facility>
+        <extractStackTrace>true</extractStackTrace>
+        <filterStackTrace>true</filterStackTrace>
+        <mdcProfiling>true</mdcProfiling>
+        <timestampPattern>YYYY-MM-dd HH:mm:ss.SSS</timestampPattern>
+        <maximumMessageSize>8192</maximumMessageSize>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="GRAYLOG"/>
+    </root>
+</configuration>
