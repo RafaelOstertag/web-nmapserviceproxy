@@ -27,6 +27,11 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <nmapservice-grpc.version>1.0.0</nmapservice-grpc.version>
         <logstash-gelf.version>1.14.1</logstash-gelf.version>
+
+        <!-- Sonar -->
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!-- Organization and project keys are displayed in the right sidebar of the project homepage -->
+        <sonar.organization>rafaelostertag</sonar.organization>
     </properties>
 
     <dependencies>

@@ -4,7 +4,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM ''
+        pollSCM '@daily'
         cron '@daily'
     }
 
@@ -15,6 +15,8 @@ pipeline {
     options {
         ansiColor('xterm')
         buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')
+        timestamps()
+        disableConcurrentBuilds()
     }
 
     stages {
@@ -27,6 +29,14 @@ pipeline {
         stage('Build & Test') {
             steps {
                 sh 'mvn -B test'
+            }
+        }
+
+        stage('Sonarcloud') {
+            steps {
+                withSonarQubeEnv(installationName: 'Sonarcloud', credentialsId: 'e8795d01-550a-4c05-a4be-41b48b22403f') {
+                    sh label: 'sonarcloud', script: "mvn $SONAR_MAVEN_GOAL"
+                }
             }
         }
 
