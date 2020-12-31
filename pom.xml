@@ -9,7 +9,7 @@
     <version>2.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>ch.guengel.webtools nmapserviceproxy</name>
+    <name>Nmap Service Proxy</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
