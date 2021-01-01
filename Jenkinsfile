@@ -14,7 +14,7 @@ pipeline {
 
     options {
         ansiColor('xterm')
-        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')
+        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '15')
         timestamps()
         disableConcurrentBuilds()
     }
@@ -32,11 +32,24 @@ pipeline {
             }
         }
 
+        stage('Publish test results') {
+            steps {
+                junit '**/failsafe-reports/*.xml,**/surefire-reports/*.xml'
+            }
+        }
+
         stage('Sonarcloud') {
             steps {
                 withSonarQubeEnv(installationName: 'Sonarcloud', credentialsId: 'e8795d01-550a-4c05-a4be-41b48b22403f') {
                     sh label: 'sonarcloud', script: "mvn $SONAR_MAVEN_GOAL"
                 }
+            }
+        }
+
+        stage("Check Dependencies") {
+            steps {
+                dependencyCheck additionalArguments: '''--suppression dependency-check-suppression.xml''', odcInstallation: 'Latest'
+                dependencyCheckPublisher failedTotalCritical: 1, failedTotalHigh: 5, failedTotalLow: 8, failedTotalMedium: 8, pattern: '', unstableTotalCritical: 0, unstableTotalHigh: 4, unstableTotalLow: 8, unstableTotalMedium: 8
             }
         }
 
