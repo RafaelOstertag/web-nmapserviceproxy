@@ -1,9 +1,9 @@
 package ch.guengel.webtools
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
-class HostBlackListKtTest {
+internal class HostBlackListKtTest {
 
     @Test
     fun `is guengel_dot_ch blacklisted`() {
