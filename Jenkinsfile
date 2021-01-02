@@ -24,11 +24,11 @@ pipeline {
             steps {
                 sh 'mvn -B test'
             }
-        }
 
-        stage('Publish test results') {
-            steps {
-                junit '**/failsafe-reports/*.xml,**/surefire-reports/*.xml'
+            post {
+                always {
+                    junit '**/failsafe-reports/*.xml,**/surefire-reports/*.xml'
+                }
             }
         }
 
