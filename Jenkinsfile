@@ -22,7 +22,7 @@ pipeline {
     stages {
         stage('Build & Test') {
             steps {
-                sh 'mvn -B test'
+                sh 'mvn -B verify'
             }
 
             post {
