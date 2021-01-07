@@ -84,7 +84,7 @@ pipeline {
             }
 
             steps {
-                build wait: false, job: '../docker/nmapserviceproxy', parameters: [string(name: 'VERSION', value: $params.VERSION), booleanParam(name: 'DEPLOY', value: true)]
+                build wait: false, job: '../docker/nmapserviceproxy', parameters: [string(name: 'VERSION', value: env.VERSION), booleanParam(name: 'DEPLOY', value: true)]
             }
         }
     }
