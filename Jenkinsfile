@@ -71,11 +71,7 @@ pipeline {
             }
         }
 
-        stage('Build & Push Docker Image') {
-            agent {
-                label "arm64&&docker"
-            }
-
+        stage('Trigger k8s deployment') {
             environment {
                 VERSION = sh returnStdout: true, script: "mvn -B help:evaluate '-Dexpression=project.version' | grep -v '\\[' | tr -d '\\n'"
             }
@@ -88,34 +84,7 @@ pipeline {
             }
 
             steps {
-                sh "docker build --build-arg 'VERSION=${env.VERSION}' -t rafaelostertag/nmap-service-proxy:${env.VERSION} docker"
-                withCredentials([usernamePassword(credentialsId: '750504ce-6f4f-4252-9b2b-5814bd561430', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                    sh 'docker login --username "$USERNAME" --password "$PASSWORD"'
-                    sh "docker push rafaelostertag/nmap-service-proxy:${env.VERSION}"
-                }
-            }
-        }
-
-        stage('Deploy to k8s') {
-            agent {
-                label "helm"
-            }
-
-            environment {
-                VERSION = sh returnStdout: true, script: "mvn -B help:evaluate '-Dexpression=project.version' | grep -v '\\[' | tr -d '\\n'"
-            }
-
-            when {
-                branch 'master'
-                not {
-                    triggeredBy "TimerTrigger"
-                }
-            }
-
-            steps {
-                withKubeConfig(credentialsId: 'a9fe556b-01b0-4354-9a65-616baccf9cac') {
-                    sh "helm upgrade -n portscanner -i --set image.tag=${env.VERSION} nmapserviceproxy helm/nmapserviceproxy"
-                }
+                build wait: false, job: '../docker/nmapserviceproxy', parameters: [string(name: 'VERSION', value: $params.VERSION), booleanParam(name: 'DEPLOY', value: true)]
             }
         }
     }
