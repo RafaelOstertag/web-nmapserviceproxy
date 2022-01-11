@@ -1,11 +1,8 @@
 package ch.guengel.webtools.modules
 
-import io.ktor.application.Application
-import io.ktor.application.install
-import io.ktor.application.log
-import io.ktor.features.CORS
-import io.ktor.features.DefaultHeaders
-import io.ktor.http.HttpMethod
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.http.*
 
 fun Application.headersModule() {
     log.info("Setup CORS")
@@ -13,7 +10,6 @@ fun Application.headersModule() {
         method(HttpMethod.Options)
         method(HttpMethod.Delete)
         anyHost()
-        allowCredentials = true
     }
 
     log.info("Setup default headers")
