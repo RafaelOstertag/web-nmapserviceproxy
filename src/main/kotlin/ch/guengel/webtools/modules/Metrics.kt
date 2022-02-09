@@ -14,7 +14,7 @@ fun Application.setupMetrics() {
     }
 
     routing {
-        get("/metrics") {
+        get("/q/metrics") {
             val result = registry.scrape()
             call.respond(result)
         }
