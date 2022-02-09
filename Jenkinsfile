@@ -36,6 +36,11 @@ pipeline {
         }
 
         stage('Sonarcloud') {
+            when {
+                not {
+                    triggeredBy "TimerTrigger"
+                }
+            }
             steps {
                 configFileProvider([configFile(fileId: '96a603cc-e1a4-4d5b-a7e9-ae1aa566cdfc', variable: 'MAVEN_SETTINGS_XML')]) {
                     withSonarQubeEnv(installationName: 'Sonarcloud', credentialsId: 'e8795d01-550a-4c05-a4be-41b48b22403f') {
@@ -46,6 +51,11 @@ pipeline {
         }
 
         stage("Quality Gate") {
+            when {
+                not {
+                    triggeredBy "TimerTrigger"
+                }
+            }
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
