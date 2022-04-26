@@ -24,7 +24,7 @@ workflows:
             - maven-repository-write
       - c/maven-trigger-pipeline-with-version:
           name: trigger-docker-image-build
-          project-name: web-nmapservice-proxy
+          project-name: web-nmapserviceproxy
           context:
             - circle-ci
           requires:
