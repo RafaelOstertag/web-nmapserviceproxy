@@ -1,0 +1,47 @@
+version: 2.1
+
+orbs:
+  c: rafaelostertag/common-orb@1.14.0
+
+workflows:
+  build-any-branch:
+    jobs:
+      - c/maven-build-and-test:
+          name: build-and-test
+          sonar-project-key: "ch.guengel.webtools:nmapserviceproxy"
+          context:
+            - sonar
+            - repository-read
+      - c/maven-deploy-artifacts:
+          filters:
+            branches:
+              only:
+                - master
+          name: deploy-maven-artifact
+          requires:
+            - build-and-test
+          context:
+            - maven-repository-write
+      - c/maven-trigger-pipeline-with-version:
+          name: trigger-docker-image-build
+          project-name: web-nmapservice-proxy
+          context:
+            - circle-ci
+          requires:
+            - deploy-maven-artifact
+
+
+  daily-dependency-check:
+    triggers:
+      - schedule:
+          cron: "21 4 * * *"
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+
+    jobs:
+      - c/maven-dependency-check:
+          context:
+            - repository-read
